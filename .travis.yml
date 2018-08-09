@@ -3,6 +3,7 @@ node_js:
   - node
 before_script:
 script:
+  - npm run build
   - npm test
   - npm run report-coverage
 cache:
