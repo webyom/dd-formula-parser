@@ -268,17 +268,17 @@
             type: 'var',
             name: newToken || token
           };
+          if (pendding.negtive) {
+            _item.negtive = true;
+          }
         } else {
           _item = {
             type: 'const',
-            name: num
+            name: pendding.negtive ? -num : num
           };
         }
         if (pendding.op) {
           _item.op = pendding.op;
-        }
-        if (pendding.negtive) {
-          _item.negtive = true;
         }
         data.push(_item);
         pendding = {};

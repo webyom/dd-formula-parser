@@ -19,7 +19,7 @@ describe('calculator-gen', function () {
       formula.genCalculator(common.FORMULAS[0]).data.calculator({
         var1: 3
       })
-    ).to.equal(3);
+    ).to.equal(-3);
   });
 
   it('calculate refs resolved', function () {
@@ -29,7 +29,7 @@ describe('calculator-gen', function () {
         .data.calculator({
           var1: 3
         })
-    ).to.equal(0);
+    ).to.equal(-6);
   });
 
   it('unexpected start token', function () {

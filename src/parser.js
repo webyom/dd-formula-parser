@@ -168,17 +168,17 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
           type: 'var',
           name: newToken || token
         };
+        if (pendding.negtive) {
+          item.negtive = true;
+        }
       } else {
         item = {
           type: 'const',
-          name: num
+          name: pendding.negtive ? -num : num
         };
       }
       if (pendding.op) {
         item.op = pendding.op;
-      }
-      if (pendding.negtive) {
-        item.negtive = true;
       }
       data.push(item);
       pendding = {};

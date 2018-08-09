@@ -77,7 +77,7 @@ parse('-(var1 + 1) - -(-(var2 * 2) - 3) + -1.5', {
       ],
       {type: 'const', name: 3, op: '-'}
     ],
-    {type: 'const', name: 1.5, op: '+', negtive: true}
+    {type: 'const', name: -1.5, op: '+'}
   ]
 }
 ```
@@ -91,7 +91,7 @@ parse('-(var1 + 1) - -(-(var2 * 2) - 3) + -1.5', {
   - `var` variables
 - `name` representation of operators, number literals and variables.
 - `op` the operator grouped with the operand.
-- `negtive` boolean value indicating whether the number literals, variables and expression grouped by parenthesis have a negtive sign.
+- `negtive` boolean value indicating whether the variables and expression grouped by parenthesis have a negtive sign.
 
 ## stringify(items, opt)
 
