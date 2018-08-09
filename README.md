@@ -154,3 +154,7 @@ All the functions return the same structure of data.
 - `data` the payload data
 
 You can compare the `code` with error codes in `PARSER_ERRS`, `STRINGIFIER_ERRS`, `REFS_RESOLVER_ERRS` and `CALCULATOR_GEN_ERRS` exported to determin the error type.
+
+## Online Demo
+
+https://codepen.io/webyom/pen/WKLedG
