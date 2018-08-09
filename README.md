@@ -53,7 +53,7 @@ Negative sign is grouped with the literal or variable it decorating unless it is
 ``` js
 parse('-(var1 + 1) - -(-(var2 * 2) - 3) + -1.5', {
   varValidator: function (name) {
-    if (name == var1) {
+    if (name == 'var1') {
       return 'replaced';
     }
   }
