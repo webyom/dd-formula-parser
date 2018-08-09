@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const formula = require('../dist/dd-formula-parser.umd');
+const formula = require('../');
 const common = require('./common');
 
 describe('refs-resolver', function () {

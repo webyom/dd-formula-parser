@@ -498,7 +498,7 @@
           parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + item.name + ' ');
         } else {
           vars.push(item.name);
-          parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + 'getVar("' + item.name + '") ');
+          parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + '(params["' + item.name + '"] || 0) ');
         }
       }
     } catch (err) {
@@ -543,7 +543,7 @@
       }
       return false;
     });
-    var body = '\n    params = params || {};\n    function getVar(name) {\n      return params[name] || 0;\n    }\n    return ' + exp.data.expression + ';\n  ';
+    var body = '\n    params = params || {};\n    return ' + exp.data.expression + ';\n  ';
     return {
       code: 0,
       data: {

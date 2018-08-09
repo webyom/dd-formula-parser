@@ -39,9 +39,9 @@ function genExpression(items) {
       parts.push(
         (item.op ? item.op + ' ' : '')
           + (item.negtive ? '-' : '')
-          + 'getVar("'
+          + '(params["'
           + item.name
-          + '") '
+          + '"] || 0) '
       );
     }
   }
@@ -72,9 +72,6 @@ function genCalculator(items = []) {
   });
   const body = `
     params = params || {};
-    function getVar(name) {
-      return params[name] || 0;
-    }
     return ${exp.data.expression};
   `;
   return {
