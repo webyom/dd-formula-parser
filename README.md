@@ -125,7 +125,7 @@ Generate calculator function for a formula string or the data returned by `parse
 ### Description
 
 - `vars` variable is in the formula
-- `calculator` calculator function of the formula. The `params` must be supplied if the formula contains variables, it is a dictionary of variable name keys and the actual values of variables.
+- `calculator` calculator function of the formula. The `params` must be supplied if the formula contains variables, it is a dictionary of variable name keys and the actual values of variables. This function returns a calculated number result.
 
 ## resolveRefs(refs, n)
 
