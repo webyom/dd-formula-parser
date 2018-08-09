@@ -1,0 +1,9 @@
+node_modules
+tmp
+coverage
+*.log
+*~
+.idea
+.DS_Store
+/.nyc_output/
+/coverage.lcov

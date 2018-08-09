@@ -1,0 +1,18 @@
+{
+  "presets": [
+    [
+      "env",
+      {
+        "targets": {
+          "browsers": ["last 2 versions", "ie >= 10"],
+          "node": "8"
+        },
+        "modules": false
+      }
+    ],
+    "stage-3"
+  ],
+  "plugins": [
+    "external-helpers"
+  ]
+}

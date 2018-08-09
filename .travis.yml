@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - node
+before_script:
+script:
+  - npm test
+  - npm run report-coverage
+cache:
+  directories:
+    - node_modules
