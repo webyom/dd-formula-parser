@@ -45,7 +45,7 @@ function resolveRefs(refs = [], n) {
           ...REFS_RESOLVER_ERRS.CIRCULAR_REF
         };
       }
-      return refs[i];
+      return '(' + refs[i] + ')';
     });
   }
   return (

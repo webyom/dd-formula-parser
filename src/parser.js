@@ -3,20 +3,32 @@ import {tokenize} from './tokenizer';
 const OPERATORS = ['+', '-', '*', '/'];
 
 const PARSER_ERRS = {
-  UNEXPECTED_TOKEN: {
+  EXPECT_OPERAND_AFTER_OPERATOR: {
     code: 1,
-    msg: 'Unexpected token'
+    msg: 'Expect operand after operator'
+  },
+  EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE: {
+    code: 2,
+    msg: 'Expect operand before parenthesis close'
+  },
+  UNEXPECTED_PARENTHESIS_CLOSE: {
+    code: 3,
+    msg: 'Unexpected parenthesis close'
+  },
+  UNEXPECTED_OPERATOR: {
+    code: 4,
+    msg: 'Unexpected operator'
   },
   EXPECT_OPERATOR_BEFORE: {
-    code: 2,
+    code: 5,
     msg: 'Expect operator before'
   },
   UNCLOSED_PARENTHESIS: {
-    code: 3,
+    code: 6,
     msg: 'Unclosed parenthesis'
   },
   INVALID_VAR: {
-    code: 3,
+    code: 7,
     msg: 'Invalid variable'
   }
 };
@@ -67,6 +79,12 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
                   name: pendding.op
                 });
               }
+            } else if (pendding.negtive) {
+              // is start negtive
+              data.push({
+                type: 'start',
+                negtive: true
+              });
             }
             data.push(nestedData);
           }
@@ -83,7 +101,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
           return {
             token: token,
             position: t.position,
-            ...PARSER_ERRS.UNEXPECTED_TOKEN
+            ...PARSER_ERRS.EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE
           };
         }
         return {
@@ -96,7 +114,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
         return {
           token: token,
           position: t.position,
-          ...PARSER_ERRS.UNEXPECTED_TOKEN
+          ...PARSER_ERRS.UNEXPECTED_PARENTHESIS_CLOSE
         };
       }
     } else if (OPERATORS.indexOf(token) >= 0) {
@@ -105,7 +123,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
           return {
             token: token,
             position: t.position,
-            ...PARSER_ERRS.UNEXPECTED_TOKEN
+            ...PARSER_ERRS.UNEXPECTED_OPERATOR
           };
         }
         if (token == '-') {
@@ -184,7 +202,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
     return {
       token: token,
       position: t.position,
-      ...PARSER_ERRS.UNEXPECTED_TOKEN
+      ...PARSER_ERRS.EXPECT_OPERAND_AFTER_OPERATOR
     };
   }
   return {

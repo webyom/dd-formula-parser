@@ -1,13 +1,30 @@
 import {parse} from './parser';
 
+const CALCULATOR_GEN_ERRS = {
+  UNEXPECTED_START_TOKEN: {
+    code: 1,
+    msg: 'Unexpected start token'
+  }
+};
+
 function genExpression(items) {
   let parts = [];
   let vars = [];
-  for (const item of items) {
+  for (const [i, item] of items.entries()) {
     if (Array.isArray(item)) {
       const res = genExpression(item);
-      vars = vars.concat(res.vars);
-      parts.push('(' + res.expression + ') ');
+      if (res.code !== 0) {
+        return res;
+      }
+      vars = vars.concat(res.data.vars);
+      parts.push('(' + res.data.expression + ') ');
+    } else if (item.type == 'start') {
+      if (i !== 0) {
+        return CALCULATOR_GEN_ERRS.UNEXPECTED_START_TOKEN;
+      }
+      if (item.negtive) {
+        parts.push('-');
+      }
     } else if (item.type == 'op') {
       parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
     } else if (item.type == 'const') {
@@ -29,8 +46,11 @@ function genExpression(items) {
     }
   }
   return {
-    vars: vars,
-    expression: parts.join('').trim()
+    code: 0,
+    data: {
+      vars: vars,
+      expression: parts.join('').trim()
+    }
   };
 }
 
@@ -39,8 +59,11 @@ function genCalculator(items = []) {
     items = parse(items).data;
   }
   const exp = genExpression(items);
+  if (exp.code !== 0) {
+    return exp;
+  }
   const has = {};
-  const vars = exp.vars.filter(function (v) {
+  const vars = exp.data.vars.filter(function (v) {
     if (!has[v]) {
       has[v] = true;
       return true;
@@ -52,12 +75,15 @@ function genCalculator(items = []) {
     function getVar(name) {
       return params[name] || 0;
     }
-    return ${exp.expression};
+    return ${exp.data.expression};
   `;
   return {
-    vars: vars,
-    calculate: new Function('params', body)
+    code: 0,
+    data: {
+      vars: vars,
+      calculator: new Function('params', body)
+    }
   };
 }
 
-export {genCalculator};
+export {CALCULATOR_GEN_ERRS, genCalculator};

@@ -63,23 +63,73 @@
     return target;
   };
 
+  var slicedToArray = function () {
+    function sliceIterator(arr, i) {
+      var _arr = [];
+      var _n = true;
+      var _d = false;
+      var _e = undefined;
+
+      try {
+        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+          _arr.push(_s.value);
+
+          if (i && _arr.length === i) break;
+        }
+      } catch (err) {
+        _d = true;
+        _e = err;
+      } finally {
+        try {
+          if (!_n && _i["return"]) _i["return"]();
+        } finally {
+          if (_d) throw _e;
+        }
+      }
+
+      return _arr;
+    }
+
+    return function (arr, i) {
+      if (Array.isArray(arr)) {
+        return arr;
+      } else if (Symbol.iterator in Object(arr)) {
+        return sliceIterator(arr, i);
+      } else {
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      }
+    };
+  }();
+
   var OPERATORS = ['+', '-', '*', '/'];
 
   var PARSER_ERRS = {
-    UNEXPECTED_TOKEN: {
+    EXPECT_OPERAND_AFTER_OPERATOR: {
       code: 1,
-      msg: 'Unexpected token'
+      msg: 'Expect operand after operator'
+    },
+    EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE: {
+      code: 2,
+      msg: 'Expect operand before parenthesis close'
+    },
+    UNEXPECTED_PARENTHESIS_CLOSE: {
+      code: 3,
+      msg: 'Unexpected parenthesis close'
+    },
+    UNEXPECTED_OPERATOR: {
+      code: 4,
+      msg: 'Unexpected operator'
     },
     EXPECT_OPERATOR_BEFORE: {
-      code: 2,
+      code: 5,
       msg: 'Expect operator before'
     },
     UNCLOSED_PARENTHESIS: {
-      code: 3,
+      code: 6,
       msg: 'Unclosed parenthesis'
     },
     INVALID_VAR: {
-      code: 3,
+      code: 7,
       msg: 'Invalid variable'
     }
   };
@@ -134,6 +184,12 @@
                     name: pendding.op
                   });
                 }
+              } else if (pendding.negtive) {
+                // is start negtive
+                data.push({
+                  type: 'start',
+                  negtive: true
+                });
               }
               data.push(nestedData);
             }
@@ -150,7 +206,7 @@
             return _extends({
               token: token,
               position: t.position
-            }, PARSER_ERRS.UNEXPECTED_TOKEN);
+            }, PARSER_ERRS.EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE);
           }
           return {
             code: 0,
@@ -162,7 +218,7 @@
           return _extends({
             token: token,
             position: t.position
-          }, PARSER_ERRS.UNEXPECTED_TOKEN);
+          }, PARSER_ERRS.UNEXPECTED_PARENTHESIS_CLOSE);
         }
       } else if (OPERATORS.indexOf(token) >= 0) {
         if (pendding.op || pendding.start) {
@@ -170,7 +226,7 @@
             return _extends({
               token: token,
               position: t.position
-            }, PARSER_ERRS.UNEXPECTED_TOKEN);
+            }, PARSER_ERRS.UNEXPECTED_OPERATOR);
           }
           if (token == '-') {
             if (pendding.negtive) {
@@ -245,7 +301,7 @@
       return _extends({
         token: token,
         position: t.position
-      }, PARSER_ERRS.UNEXPECTED_TOKEN);
+      }, PARSER_ERRS.EXPECT_OPERAND_AFTER_OPERATOR);
     }
     return {
       code: 0,
@@ -261,8 +317,12 @@
   }
 
   var STRINGIFIER_ERRS = {
-    INVALID_VAR: {
+    UNEXPECTED_START_TOKEN: {
       code: 1,
+      msg: 'Unexpected start token'
+    },
+    INVALID_VAR: {
+      code: 2,
       msg: 'Invalid variable'
     }
   };
@@ -274,8 +334,13 @@
     var _iteratorError = undefined;
 
     try {
-      for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var item = _step.value;
+      for (var _iterator = items.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var _ref = _step.value;
+
+        var _ref2 = slicedToArray(_ref, 2);
+
+        var i = _ref2[0];
+        var item = _ref2[1];
 
         if (Array.isArray(item)) {
           var res = _stringify(item, opt);
@@ -283,6 +348,13 @@
             return res;
           }
           parts.push('(' + res.data + ') ');
+        } else if (item.type == 'start') {
+          if (i !== 0) {
+            return STRINGIFIER_ERRS.UNEXPECTED_START_TOKEN;
+          }
+          if (item.negtive) {
+            parts.push('-');
+          }
         } else if (item.type == 'op') {
           parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
         } else if (item.type == 'const') {
@@ -374,7 +446,7 @@
             ref: '$' + i
           }, REFS_RESOLVER_ERRS.CIRCULAR_REF);
         }
-        return refs[i];
+        return '(' + refs[i] + ')';
       });
     }
     return err || {
@@ -382,6 +454,13 @@
       data: data
     };
   }
+
+  var CALCULATOR_GEN_ERRS = {
+    UNEXPECTED_START_TOKEN: {
+      code: 1,
+      msg: 'Unexpected start token'
+    }
+  };
 
   function genExpression(items) {
     var parts = [];
@@ -391,13 +470,28 @@
     var _iteratorError = undefined;
 
     try {
-      for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var item = _step.value;
+      for (var _iterator = items.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var _ref = _step.value;
+
+        var _ref2 = slicedToArray(_ref, 2);
+
+        var i = _ref2[0];
+        var item = _ref2[1];
 
         if (Array.isArray(item)) {
           var res = genExpression(item);
-          vars = vars.concat(res.vars);
-          parts.push('(' + res.expression + ') ');
+          if (res.code !== 0) {
+            return res;
+          }
+          vars = vars.concat(res.data.vars);
+          parts.push('(' + res.data.expression + ') ');
+        } else if (item.type == 'start') {
+          if (i !== 0) {
+            return CALCULATOR_GEN_ERRS.UNEXPECTED_START_TOKEN;
+          }
+          if (item.negtive) {
+            parts.push('-');
+          }
         } else if (item.type == 'op') {
           parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
         } else if (item.type == 'const') {
@@ -423,8 +517,11 @@
     }
 
     return {
-      vars: vars,
-      expression: parts.join('').trim()
+      code: 0,
+      data: {
+        vars: vars,
+        expression: parts.join('').trim()
+      }
     };
   }
 
@@ -435,18 +532,24 @@
       items = parse(items).data;
     }
     var exp = genExpression(items);
+    if (exp.code !== 0) {
+      return exp;
+    }
     var has = {};
-    var vars = exp.vars.filter(function (v) {
+    var vars = exp.data.vars.filter(function (v) {
       if (!has[v]) {
         has[v] = true;
         return true;
       }
       return false;
     });
-    var body = '\n    params = params || {};\n    function getVar(name) {\n      return params[name] || 0;\n    }\n    return ' + exp.expression + ';\n  ';
+    var body = '\n    params = params || {};\n    function getVar(name) {\n      return params[name] || 0;\n    }\n    return ' + exp.data.expression + ';\n  ';
     return {
-      vars: vars,
-      calculate: new Function('params', body)
+      code: 0,
+      data: {
+        vars: vars,
+        calculator: new Function('params', body)
+      }
     };
   }
 
@@ -456,6 +559,7 @@
   exports.stringify = stringify;
   exports.REFS_RESOLVER_ERRS = REFS_RESOLVER_ERRS;
   exports.resolveRefs = resolveRefs;
+  exports.CALCULATOR_GEN_ERRS = CALCULATOR_GEN_ERRS;
   exports.genCalculator = genCalculator;
 
   Object.defineProperty(exports, '__esModule', { value: true });

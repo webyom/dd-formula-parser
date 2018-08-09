@@ -1,19 +1,30 @@
 const STRINGIFIER_ERRS = {
-  INVALID_VAR: {
+  UNEXPECTED_START_TOKEN: {
     code: 1,
+    msg: 'Unexpected start token'
+  },
+  INVALID_VAR: {
+    code: 2,
     msg: 'Invalid variable'
   }
 };
 
 function _stringify(items, opt) {
   let parts = [];
-  for (const item of items) {
+  for (const [i, item] of items.entries()) {
     if (Array.isArray(item)) {
       const res = _stringify(item, opt);
       if (res.code !== 0) {
         return res;
       }
       parts.push('(' + res.data + ') ');
+    } else if (item.type == 'start') {
+      if (i !== 0) {
+        return STRINGIFIER_ERRS.UNEXPECTED_START_TOKEN;
+      }
+      if (item.negtive) {
+        parts.push('-');
+      }
     } else if (item.type == 'op') {
       parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
     } else if (item.type == 'const') {
