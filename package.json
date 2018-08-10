@@ -1,7 +1,10 @@
 {
   "name": "dd-formula-parser",
   "version": "0.1.2",
-  "description": "formula-parser",
+  "description": "A simple formula parser",
+  "keywords": [
+    "formula", "parser"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/webyom/dd-formula-parser.git"
