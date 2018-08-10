@@ -20,7 +20,7 @@ describe('parser', function () {
 
   it('expect start or operator before "("', function () {
     expect(formula.parse('var1 (1 + 1)').code).to.equal(
-      formula.PARSER_ERRS.EXPECT_OPERATOR_BEFORE.code
+      formula.PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND.code
     );
   });
 
@@ -56,7 +56,7 @@ describe('parser', function () {
 
   it('expect operator before operand', function () {
     expect(formula.parse('1 + 1 2').code).to.equal(
-      formula.PARSER_ERRS.EXPECT_OPERATOR_BEFORE.code
+      formula.PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND.code
     );
   });
 

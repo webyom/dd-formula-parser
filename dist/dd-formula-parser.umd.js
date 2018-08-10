@@ -120,9 +120,9 @@
       code: 4,
       msg: 'Unexpected operator'
     },
-    EXPECT_OPERATOR_BEFORE: {
+    EXPECT_OPERATOR_BEFORE_OPERAND: {
       code: 5,
-      msg: 'Expect operator before'
+      msg: 'Expect operator before operand'
     },
     UNCLOSED_PARENTHESIS: {
       code: 6,
@@ -155,7 +155,7 @@
           return _extends({
             token: token,
             position: t.position
-          }, PARSER_ERRS.EXPECT_OPERATOR_BEFORE);
+          }, PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND);
         }
         var res = _parse(tokens, opt, _pos + 1, _lv + 1);
         if (res.code === 0) {
@@ -248,7 +248,7 @@
           return _extends({
             token: token,
             position: t.position
-          }, PARSER_ERRS.EXPECT_OPERATOR_BEFORE);
+          }, PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND);
         }
         var num = +token;
         var _item = void 0;

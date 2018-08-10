@@ -19,9 +19,9 @@ const PARSER_ERRS = {
     code: 4,
     msg: 'Unexpected operator'
   },
-  EXPECT_OPERATOR_BEFORE: {
+  EXPECT_OPERATOR_BEFORE_OPERAND: {
     code: 5,
-    msg: 'Expect operator before'
+    msg: 'Expect operator before operand'
   },
   UNCLOSED_PARENTHESIS: {
     code: 6,
@@ -49,7 +49,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
         return {
           token: token,
           position: t.position,
-          ...PARSER_ERRS.EXPECT_OPERATOR_BEFORE
+          ...PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND
         };
       }
       const res = _parse(tokens, opt, _pos + 1, _lv + 1);
@@ -146,7 +146,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
         return {
           token: token,
           position: t.position,
-          ...PARSER_ERRS.EXPECT_OPERATOR_BEFORE
+          ...PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND
         };
       }
       const num = +token;
