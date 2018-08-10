@@ -6,6 +6,13 @@ module.exports = {
   ],
   RESOLVED_FORMULA:
     '-((2) + 1) + var1 * -(-(1 + var2) * (var3 - (-var4 - 1) * var5 / 2)) + var3 + -3',
+  ARRAY_STRINGIFY_RESULT: [
+    '-$1 + variable1 * -(-(1 + var2) * (',
+    {var3: 1},
+    ' - (-var4 - 1) * var5 / 2)) + ',
+    {var3: 1},
+    ' + -3'
+  ],
   PARSED_DATA: [
     {
       type: 'var',

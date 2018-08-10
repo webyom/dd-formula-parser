@@ -10,7 +10,8 @@ const CALCULATOR_GEN_ERRS = {
 function genExpression(items) {
   let parts = [];
   let vars = [];
-  for (const [i, item] of items.entries()) {
+  for (let i = 0, l = items.length; i < l; i++) {
+    const item = items[i];
     if (Array.isArray(item)) {
       const res = genExpression(item);
       if (res.code !== 0) {

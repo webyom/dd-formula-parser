@@ -9,15 +9,23 @@ const STRINGIFIER_ERRS = {
   }
 };
 
-function _stringify(items, opt) {
+function _stringify(items, opt, _lv = 0) {
+  let arrayData = false;
   let parts = [];
   for (const [i, item] of items.entries()) {
     if (Array.isArray(item)) {
-      const res = _stringify(item, opt);
+      const res = _stringify(item, opt, _lv + 1);
       if (res.code !== 0) {
         return res;
       }
-      parts.push('(' + res.data + ') ');
+      if (res.arrayData) {
+        arrayData = true;
+        parts.push('(');
+        parts = parts.concat(res.data);
+        parts.push(') ');
+      } else {
+        parts.push('(' + res.data + ') ');
+      }
     } else if (item.type == 'start') {
       if (i !== 0) {
         return STRINGIFIER_ERRS.UNEXPECTED_START_TOKEN;
@@ -35,7 +43,7 @@ function _stringify(items, opt) {
           + ' '
       );
     } else {
-      let newToken;
+      let newToken = item.name;
       if (opt.varValidator) {
         const res = opt.varValidator(item.name);
         if (res === false) {
@@ -44,15 +52,54 @@ function _stringify(items, opt) {
             ...STRINGIFIER_ERRS.INVALID_VAR
           };
         }
-        newToken = typeof res == 'string' ? res : '';
+        const resType = typeof res;
+        if (resType == 'string' || (res && resType == 'object')) {
+          newToken = res;
+        }
       }
-      parts.push(
-        (item.op ? item.op + ' ' : '')
-          + (item.negtive ? '-' : '')
-          + (newToken || item.name)
-          + ' '
-      );
+      if (typeof newToken == 'object') {
+        arrayData = true;
+        parts.push(
+          (item.op ? item.op + ' ' : '') + (item.negtive ? '-' : ''),
+          newToken,
+          ' '
+        );
+      } else {
+        parts.push(
+          (item.op ? item.op + ' ' : '')
+            + (item.negtive ? '-' : '')
+            + newToken
+            + ' '
+        );
+      }
     }
+  }
+  if (arrayData) {
+    const newParts = [];
+    let tmp = '';
+    for (let i = 0, l = parts.length; i < l; i++) {
+      const part = parts[i];
+      if (typeof part == 'string') {
+        tmp += part;
+      } else if (tmp) {
+        if (!newParts.length) {
+          tmp = tmp.trimLeft();
+        }
+        newParts.push(tmp, part);
+        tmp = '';
+      } else {
+        newParts.push(part);
+      }
+    }
+    if (tmp) {
+      tmp = tmp.trimRight();
+      newParts.push(tmp);
+    }
+    return {
+      code: 0,
+      arrayData: true,
+      data: newParts
+    };
   }
   return {
     code: 0,

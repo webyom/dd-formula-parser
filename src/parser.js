@@ -152,7 +152,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
       const num = +token;
       let item;
       if (isNaN(num)) {
-        let newToken;
+        let newToken = token;
         if (opt.varValidator) {
           const res = opt.varValidator(token);
           if (res === false) {
@@ -162,11 +162,13 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
               ...PARSER_ERRS.INVALID_VAR
             };
           }
-          newToken = typeof res == 'string' ? res : '';
+          if (typeof res == 'string') {
+            newToken = res;
+          }
         }
         item = {
           type: 'var',
-          name: newToken || token
+          name: newToken
         };
         if (pendding.negtive) {
           item.negtive = true;

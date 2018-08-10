@@ -49,6 +49,12 @@
     return tokens;
   }
 
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
+
   var _extends = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
@@ -253,7 +259,7 @@
         var num = +token;
         var _item = void 0;
         if (isNaN(num)) {
-          var newToken = void 0;
+          var newToken = token;
           if (opt.varValidator) {
             var _res = opt.varValidator(token);
             if (_res === false) {
@@ -262,11 +268,13 @@
                 position: t.position
               }, PARSER_ERRS.INVALID_VAR);
             }
-            newToken = typeof _res == 'string' ? _res : '';
+            if (typeof _res == 'string') {
+              newToken = _res;
+            }
           }
           _item = {
             type: 'var',
-            name: newToken || token
+            name: newToken
           };
           if (pendding.negtive) {
             _item.negtive = true;
@@ -328,6 +336,9 @@
   };
 
   function _stringify(items, opt) {
+    var _lv = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+    var arrayData = false;
     var parts = [];
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -343,11 +354,18 @@
         var item = _ref2[1];
 
         if (Array.isArray(item)) {
-          var res = _stringify(item, opt);
+          var res = _stringify(item, opt, _lv + 1);
           if (res.code !== 0) {
             return res;
           }
-          parts.push('(' + res.data + ') ');
+          if (res.arrayData) {
+            arrayData = true;
+            parts.push('(');
+            parts = parts.concat(res.data);
+            parts.push(') ');
+          } else {
+            parts.push('(' + res.data + ') ');
+          }
         } else if (item.type == 'start') {
           if (i !== 0) {
             return STRINGIFIER_ERRS.UNEXPECTED_START_TOKEN;
@@ -360,7 +378,7 @@
         } else if (item.type == 'const') {
           parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + item.name + ' ');
         } else {
-          var newToken = void 0;
+          var newToken = item.name;
           if (opt.varValidator) {
             var _res = opt.varValidator(item.name);
             if (_res === false) {
@@ -368,9 +386,17 @@
                 token: item.name
               }, STRINGIFIER_ERRS.INVALID_VAR);
             }
-            newToken = typeof _res == 'string' ? _res : '';
+            var resType = typeof _res === 'undefined' ? 'undefined' : _typeof(_res);
+            if (resType == 'string' || _res && resType == 'object') {
+              newToken = _res;
+            }
           }
-          parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + (newToken || item.name) + ' ');
+          if ((typeof newToken === 'undefined' ? 'undefined' : _typeof(newToken)) == 'object') {
+            arrayData = true;
+            parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : ''), newToken, ' ');
+          } else {
+            parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + newToken + ' ');
+          }
         }
       }
     } catch (err) {
@@ -388,6 +414,33 @@
       }
     }
 
+    if (arrayData) {
+      var newParts = [];
+      var tmp = '';
+      for (var _i = 0, l = parts.length; _i < l; _i++) {
+        var part = parts[_i];
+        if (typeof part == 'string') {
+          tmp += part;
+        } else if (tmp) {
+          if (!newParts.length) {
+            tmp = tmp.trimLeft();
+          }
+          newParts.push(tmp, part);
+          tmp = '';
+        } else {
+          newParts.push(part);
+        }
+      }
+      if (tmp) {
+        tmp = tmp.trimRight();
+        newParts.push(tmp);
+      }
+      return {
+        code: 0,
+        arrayData: true,
+        data: newParts
+      };
+    }
     return {
       code: 0,
       data: parts.join('').trim()
@@ -465,57 +518,31 @@
   function genExpression(items) {
     var parts = [];
     var vars = [];
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = items.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var _ref = _step.value;
-
-        var _ref2 = slicedToArray(_ref, 2);
-
-        var i = _ref2[0];
-        var item = _ref2[1];
-
-        if (Array.isArray(item)) {
-          var res = genExpression(item);
-          if (res.code !== 0) {
-            return res;
-          }
-          vars = vars.concat(res.data.vars);
-          parts.push('(' + res.data.expression + ') ');
-        } else if (item.type == 'start') {
-          if (i !== 0) {
-            return CALCULATOR_GEN_ERRS.UNEXPECTED_START_TOKEN;
-          }
-          if (item.negtive) {
-            parts.push('-');
-          }
-        } else if (item.type == 'op') {
-          parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
-        } else if (item.type == 'const') {
-          parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + item.name + ' ');
-        } else {
-          vars.push(item.name);
-          parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + '(params["' + item.name + '"] || 0) ');
+    for (var i = 0, l = items.length; i < l; i++) {
+      var item = items[i];
+      if (Array.isArray(item)) {
+        var res = genExpression(item);
+        if (res.code !== 0) {
+          return res;
         }
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
+        vars = vars.concat(res.data.vars);
+        parts.push('(' + res.data.expression + ') ');
+      } else if (item.type == 'start') {
+        if (i !== 0) {
+          return CALCULATOR_GEN_ERRS.UNEXPECTED_START_TOKEN;
         }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
+        if (item.negtive) {
+          parts.push('-');
         }
+      } else if (item.type == 'op') {
+        parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
+      } else if (item.type == 'const') {
+        parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + item.name + ' ');
+      } else {
+        vars.push(item.name);
+        parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + '(params["' + item.name + '"] || 0) ');
       }
     }
-
     return {
       code: 0,
       data: {

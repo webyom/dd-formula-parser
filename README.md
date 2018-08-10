@@ -106,6 +106,16 @@ This function is a negtive process of `parse` function. It takes an array param,
 }
 ```
 
+If `varValidator` returned an `Object` type data, the return data of this function will be an array of string and objects as below.
+
+``` js
+{
+  code: 0,
+  arrayData: true,
+  data: ['var1 + 2 + ', {var2: 1}, ' + 3']
+}
+```
+
 ## genCalculator(src)
 
 Generate calculator function for a formula string or the data returned by `parse`

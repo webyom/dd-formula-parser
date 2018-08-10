@@ -3,7 +3,7 @@ const formula = require('../');
 const common = require('./common');
 
 describe('stringifier', function () {
-  it('success', function () {
+  it('return string data', function () {
     expect(
       formula.stringify(common.PARSED_DATA, {
         varValidator: function (name) {
@@ -15,6 +15,22 @@ describe('stringifier', function () {
     ).to.deep.equal({
       code: 0,
       data: common.FORMULAS[0]
+    });
+  });
+
+  it('return array data', function () {
+    expect(
+      formula.stringify(common.PARSED_DATA, {
+        varValidator: function (name) {
+          if (name == 'var3') {
+            return {var3: 1};
+          }
+        }
+      })
+    ).to.deep.equal({
+      code: 0,
+      arrayData: true,
+      data: common.ARRAY_STRINGIFY_RESULT
     });
   });
 
