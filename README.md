@@ -143,7 +143,7 @@ Recursively resolve the `$:ref1` like variables, replace them with the actual fo
 
 ### params
 
-- `refMap` an map of all the formulas, the key of map is associated with the variable name.
+- `refMap` a map of all the formulas, the key of the map is associated with the variable name.
 - `refName` the key of the formula you want to resolve in the map.
 
 ### return
