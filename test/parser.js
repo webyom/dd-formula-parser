@@ -5,7 +5,7 @@ const common = require('./common');
 describe('parser', function () {
   it('success', function () {
     expect(
-      formula.parse(common.FORMULAS[0], {
+      formula.parse(common.FORMULAS['$:0'], {
         varValidator: function (name) {
           if (name == 'var1') {
             return 'variable1';

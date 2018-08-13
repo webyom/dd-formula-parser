@@ -4,27 +4,36 @@ const common = require('./common');
 
 describe('refs-resolver', function () {
   it('success', function () {
-    expect(formula.resolveRefs(common.FORMULAS, 0)).to.deep.equal({
+    expect(formula.resolveRefs(common.FORMULAS, '$:0')).to.deep.equal({
       code: 0,
       data: common.RESOLVED_FORMULA
     });
   });
 
   it('undefined reference', function () {
-    expect(formula.resolveRefs([], 0).code).to.equal(
+    expect(formula.resolveRefs({}, '$:0').code).to.equal(
       formula.REFS_RESOLVER_ERRS.UNDEFINED_REF.code
     );
   });
 
   it('self reference', function () {
-    expect(formula.resolveRefs(['$0 + 1'], 0).code).to.equal(
+    expect(formula.resolveRefs({'$:0': '$:0 + 1'}, '$:0').code).to.equal(
       formula.REFS_RESOLVER_ERRS.CIRCULAR_REF.code
+    );
+  });
+
+  it('parse error', function () {
+    expect(formula.resolveRefs({'$:0': '$:0 +'}, '$:0').code).to.equal(
+      formula.REFS_RESOLVER_ERRS.PARSE_ERR.code
     );
   });
 
   it('circular reference', function () {
     expect(
-      formula.resolveRefs(['$1 + 1', '$2 + 2', '$0 + 3'], 0).code
+      formula.resolveRefs(
+        {'$:0': '$:1 + 1', '$:1': '$:2 + 2', '$:2': '$:0 + 3'},
+        '$:0'
+      ).code
     ).to.equal(formula.REFS_RESOLVER_ERRS.CIRCULAR_REF.code);
   });
 });

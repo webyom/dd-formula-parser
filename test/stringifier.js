@@ -14,7 +14,7 @@ describe('stringifier', function () {
       })
     ).to.deep.equal({
       code: 0,
-      data: common.FORMULAS[0]
+      data: common.FORMULAS['$:0']
     });
   });
 
@@ -36,7 +36,7 @@ describe('stringifier', function () {
 
   it('back and forth', function () {
     expect(
-      formula.stringify(formula.parse(common.FORMULAS[0]).data, {
+      formula.stringify(formula.parse(common.FORMULAS['$:0']).data, {
         varValidator: function (name) {
           if (name == 'variable1') {
             return 'var1';
@@ -45,7 +45,7 @@ describe('stringifier', function () {
       })
     ).to.deep.equal({
       code: 0,
-      data: common.FORMULAS[0]
+      data: common.FORMULAS['$:0']
     });
   });
 

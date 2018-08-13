@@ -111,31 +111,31 @@
 
   var PARSER_ERRS = {
     EXPECT_OPERAND_AFTER_OPERATOR: {
-      code: 1,
+      code: 101,
       msg: 'Expect operand after operator'
     },
     EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE: {
-      code: 2,
+      code: 102,
       msg: 'Expect operand before parenthesis close'
     },
     UNEXPECTED_PARENTHESIS_CLOSE: {
-      code: 3,
+      code: 103,
       msg: 'Unexpected parenthesis close'
     },
     UNEXPECTED_OPERATOR: {
-      code: 4,
+      code: 104,
       msg: 'Unexpected operator'
     },
     EXPECT_OPERATOR_BEFORE_OPERAND: {
-      code: 5,
+      code: 105,
       msg: 'Expect operator before operand'
     },
     UNCLOSED_PARENTHESIS: {
-      code: 6,
+      code: 106,
       msg: 'Unclosed parenthesis'
     },
     INVALID_VAR: {
-      code: 7,
+      code: 107,
       msg: 'Invalid variable'
     }
   };
@@ -326,11 +326,11 @@
 
   var STRINGIFIER_ERRS = {
     UNEXPECTED_START_TOKEN: {
-      code: 1,
+      code: 201,
       msg: 'Unexpected start token'
     },
     INVALID_VAR: {
-      code: 2,
+      code: 202,
       msg: 'Invalid variable'
     }
   };
@@ -456,61 +456,71 @@
 
   var REFS_RESOLVER_ERRS = {
     UNDEFINED_REF: {
-      code: 1,
+      code: 401,
       msg: 'Undefined reference'
     },
     CIRCULAR_REF: {
-      code: 2,
+      code: 402,
       msg: 'Circular reference'
+    },
+    PARSE_ERR: {
+      code: 403,
+      msg: 'Parse error'
     }
   };
 
   function resolveRefs() {
-    var refs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-    var n = arguments[1];
+    var refMap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var refName = arguments[1];
 
-    var data = refs[n];
-    if (!data) {
+    var exp = refMap[refName];
+    if (!exp) {
       return _extends({
-        ref: '$' + n
+        ref: refName
       }, REFS_RESOLVER_ERRS.UNDEFINED_REF);
-    } else if (new RegExp('\\$' + n + '(\\D|$)').test(data)) {
-      return _extends({
-        ref: '$' + n
-      }, REFS_RESOLVER_ERRS.CIRCULAR_REF);
     }
     var err = void 0;
-    while (!err && /\$\d+/.test(data)) {
-      data = data.replace(/\$(\d+)/g, function (all, i) {
-        if (i == n) {
-          err = _extends({
-            ref: '$' + i
-          }, REFS_RESOLVER_ERRS.CIRCULAR_REF);
-          return all;
+    var next = true;
+    while (next) {
+      err = null;
+      next = false;
+      var res = parse(exp, {
+        varValidator: function varValidator(name) {
+          if (name.indexOf('$:') === 0) {
+            next = true;
+            if (name == refName) {
+              err = _extends({
+                ref: name
+              }, REFS_RESOLVER_ERRS.CIRCULAR_REF);
+            } else if (refMap[name]) {
+              return '(' + refMap[name] + ')';
+            } else {
+              err = _extends({
+                ref: name
+              }, REFS_RESOLVER_ERRS.UNDEFINED_REF);
+            }
+          }
         }
-        if (!refs[i]) {
-          err = _extends({
-            ref: '$' + i
-          }, REFS_RESOLVER_ERRS.UNDEFINED_REF);
-          return all;
-        }
-        if (new RegExp('\\$' + i + '(\\D|$)').test(refs[i])) {
-          err = _extends({
-            ref: '$' + i
-          }, REFS_RESOLVER_ERRS.CIRCULAR_REF);
-        }
-        return '(' + refs[i] + ')';
       });
+      if (res.code !== 0) {
+        err = _extends({}, REFS_RESOLVER_ERRS.PARSE_ERR);
+      }
+      if (err) {
+        return err;
+      }
+      if (next) {
+        exp = stringify(res.data).data;
+      }
     }
-    return err || {
+    return {
       code: 0,
-      data: data
+      data: exp
     };
   }
 
   var CALCULATOR_GEN_ERRS = {
     UNEXPECTED_START_TOKEN: {
-      code: 1,
+      code: 301,
       msg: 'Unexpected start token'
     }
   };

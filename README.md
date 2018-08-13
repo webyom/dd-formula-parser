@@ -27,7 +27,7 @@ Support decimal integer and float numbers, such as `18`, `1.5`
 
 Besides reserved tokens and number literals, all the tokens are treated as variables, such as `var1`
 
-Variables start with `$` followd by zero and natural numbers such as `$1` can be used as placeholder for a reference to other formulas. We supply api for resolving these references.
+Variables start with `$:` such as `$:ref1` can be used as placeholder for a reference to other formulas. We supply api for resolving these references.
 
 ## Api
 
@@ -137,14 +137,14 @@ Generate calculator function for a formula string or the data returned by `parse
 - `vars` variable is in the formula
 - `calculator` calculator function of the formula. The `params` must be supplied if the formula contains variables, it is a dictionary of variable name keys and the actual values of variables. This function returns a calculated number result.
 
-## resolveRefs(refs, n)
+## resolveRefs(refMap, refName)
 
-Recursively resolve the `$1` like variables, replace them with the actual formula the are referring to.
+Recursively resolve the `$:ref1` like variables, replace them with the actual formula the are referring to.
 
 ### params
 
-- `refs` an array of all the formulas, the index of formula in the array is associated with the number after `$` sign of the variable.
-- `n` the index of the formula you want to resolve in the array.
+- `refMap` an map of all the formulas, the key of map is associated with the variable name.
+- `refName` the key of the formula you want to resolve in the map.
 
 ### return
 

@@ -1,9 +1,10 @@
 {
   "name": "dd-formula-parser",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A simple formula parser",
   "keywords": [
-    "formula", "parser"
+    "formula",
+    "parser"
   ],
   "repository": {
     "type": "git",

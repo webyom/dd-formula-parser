@@ -1,10 +1,10 @@
 const STRINGIFIER_ERRS = {
   UNEXPECTED_START_TOKEN: {
-    code: 1,
+    code: 201,
     msg: 'Unexpected start token'
   },
   INVALID_VAR: {
-    code: 2,
+    code: 202,
     msg: 'Invalid variable'
   }
 };

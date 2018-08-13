@@ -4,19 +4,14 @@ const common = require('./common');
 
 describe('calculator-gen', function () {
   it('get variables', function () {
-    expect(formula.genCalculator(common.FORMULAS[0]).data.vars).to.deep.equal([
-      '$1',
-      'var1',
-      'var2',
-      'var3',
-      'var4',
-      'var5'
-    ]);
+    expect(
+      formula.genCalculator(common.FORMULAS['$:0']).data.vars
+    ).to.deep.equal(['$:1', 'var1', 'var2', 'var3', 'var4', 'var5']);
   });
 
   it('calculate', function () {
     expect(
-      formula.genCalculator(common.FORMULAS[0]).data.calculator({
+      formula.genCalculator(common.FORMULAS['$:0']).data.calculator({
         var1: 3
       })
     ).to.equal(-3);
@@ -25,7 +20,7 @@ describe('calculator-gen', function () {
   it('calculate refs resolved', function () {
     expect(
       formula
-        .genCalculator(formula.resolveRefs(common.FORMULAS, 0).data)
+        .genCalculator(formula.resolveRefs(common.FORMULAS, '$:0').data)
         .data.calculator({
           var1: 3
         })

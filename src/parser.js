@@ -4,31 +4,31 @@ const OPERATORS = ['+', '-', '*', '/'];
 
 const PARSER_ERRS = {
   EXPECT_OPERAND_AFTER_OPERATOR: {
-    code: 1,
+    code: 101,
     msg: 'Expect operand after operator'
   },
   EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE: {
-    code: 2,
+    code: 102,
     msg: 'Expect operand before parenthesis close'
   },
   UNEXPECTED_PARENTHESIS_CLOSE: {
-    code: 3,
+    code: 103,
     msg: 'Unexpected parenthesis close'
   },
   UNEXPECTED_OPERATOR: {
-    code: 4,
+    code: 104,
     msg: 'Unexpected operator'
   },
   EXPECT_OPERATOR_BEFORE_OPERAND: {
-    code: 5,
+    code: 105,
     msg: 'Expect operator before operand'
   },
   UNCLOSED_PARENTHESIS: {
-    code: 6,
+    code: 106,
     msg: 'Unclosed parenthesis'
   },
   INVALID_VAR: {
-    code: 7,
+    code: 107,
     msg: 'Invalid variable'
   }
 };

@@ -2,7 +2,7 @@ import {parse} from './parser';
 
 const CALCULATOR_GEN_ERRS = {
   UNEXPECTED_START_TOKEN: {
-    code: 1,
+    code: 301,
     msg: 'Unexpected start token'
   }
 };
