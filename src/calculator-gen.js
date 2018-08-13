@@ -28,6 +28,13 @@ function genExpression(items) {
       }
     } else if (item.type == 'op') {
       parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
+    } else if (item.type == 'func') {
+      parts.push(
+        (item.op ? item.op + ' ' : '')
+          + (item.negtive ? '-' : '')
+          + 'Math.'
+          + item.name
+      );
     } else if (item.type == 'const') {
       parts.push(
         (item.op ? item.op + ' ' : '')

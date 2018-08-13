@@ -16,6 +16,10 @@ describe('parser', function () {
       code: 0,
       data: common.PARSED_DATA
     });
+    // edge cases
+    ['round(1)', '-floor(1)'].forEach(function (item) {
+      expect(formula.stringify(formula.parse(item).data).data).to.equal(item);
+    });
   });
 
   it('expect start or operator before "("', function () {
@@ -26,7 +30,7 @@ describe('parser', function () {
 
   it('expect operand before ")"', function () {
     expect(formula.parse('(1 + )').code).to.equal(
-      formula.PARSER_ERRS.EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE.code
+      formula.PARSER_ERRS.EXPECT_OPERAND_BEFORE_PARENTHESIS_CLOSE.code
     );
   });
 
@@ -63,6 +67,12 @@ describe('parser', function () {
   it('expect operand after operator', function () {
     expect(formula.parse('1 + 1 +').code).to.equal(
       formula.PARSER_ERRS.EXPECT_OPERAND_AFTER_OPERATOR.code
+    );
+  });
+
+  it('expect parenthesis after function', function () {
+    expect(formula.parse('1 + round').code).to.equal(
+      formula.PARSER_ERRS.EXPECT_PARNTHESIS_AFTER_FUNCTION.code
     );
   });
 

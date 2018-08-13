@@ -17,6 +17,10 @@
 
 `-`
 
+### Functions
+
+`round`, `floor`, `ceil`
+
 ## Operands
 
 ### Number Literals
@@ -51,7 +55,7 @@ Negative sign is grouped with the literal or variable it decorating unless it is
 
 ### Example
 ``` js
-parse('-(var1 + 1) - -(-(var2 * 2) - 3) + -1.5', {
+parse('-(var1 + 1) - -(-(var2 * 2) - 3) + -1.5 + -round(var3)', {
   varValidator: function (name) {
     if (name == 'var1') {
       return 'replaced';
@@ -77,7 +81,11 @@ parse('-(var1 + 1) - -(-(var2 * 2) - 3) + -1.5', {
       ],
       {type: 'const', name: 3, op: '-'}
     ],
-    {type: 'const', name: -1.5, op: '+'}
+    {type: 'const', name: -1.5, op: '+', negtive: true},
+    {type: 'func', name: 'round', op: '+', negtive: true},
+    [
+      {type: 'var', 'name': 'var3'}
+    ]
   ]
 }
 ```
@@ -87,9 +95,10 @@ parse('-(var1 + 1) - -(-(var2 * 2) - 3) + -1.5', {
 - `type` type of token
   - `start` if a start of parenthesis contains negtive sign, we need this token to carry it.
   - `op` if an operator is followed by parenthesis, we need this token to carry it.
+  - `func` functions
   - `const` number literals
   - `var` variables
-- `name` representation of operators, number literals and variables.
+- `name` representation of operators, functions, number literals and variables.
 - `op` the operator grouped with the operand.
 - `negtive` boolean value indicating whether the variables and expression grouped by parenthesis have a negtive sign.
 

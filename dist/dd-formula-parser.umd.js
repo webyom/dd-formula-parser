@@ -108,13 +108,14 @@
   }();
 
   var OPERATORS = ['+', '-', '*', '/'];
+  var FUNCTIONS = ['round', 'floor', 'ceil'];
 
   var PARSER_ERRS = {
     EXPECT_OPERAND_AFTER_OPERATOR: {
       code: 101,
       msg: 'Expect operand after operator'
     },
-    EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE: {
+    EXPECT_OPERAND_BEFORE_PARENTHESIS_CLOSE: {
       code: 102,
       msg: 'Expect operand before parenthesis close'
     },
@@ -134,8 +135,12 @@
       code: 106,
       msg: 'Unclosed parenthesis'
     },
-    INVALID_VAR: {
+    EXPECT_PARNTHESIS_AFTER_FUNCTION: {
       code: 107,
+      msg: 'Expect parenthesis after function'
+    },
+    INVALID_VAR: {
+      code: 108,
       msg: 'Invalid variable'
     }
   };
@@ -167,7 +172,7 @@
         if (res.code === 0) {
           var nestedData = res.data;
           if (nestedData.length > 0) {
-            if (nestedData.length === 1) {
+            if (nestedData.length === 1 && !pendding.func) {
               var item = nestedData[0];
               if (pendding.op) {
                 item.op = pendding.op;
@@ -177,7 +182,19 @@
               }
               data.push(item);
             } else {
-              if (pendding.op) {
+              if (pendding.func) {
+                var _item = {
+                  type: 'func',
+                  name: pendding.func
+                };
+                if (pendding.op) {
+                  _item.op = pendding.op;
+                }
+                if (pendding.negtive) {
+                  _item.negtive = true;
+                }
+                data.push(_item);
+              } else if (pendding.op) {
                 if (pendding.negtive) {
                   data.push({
                     type: 'op',
@@ -212,7 +229,7 @@
             return _extends({
               token: token,
               position: t.position
-            }, PARSER_ERRS.EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE);
+            }, PARSER_ERRS.EXPECT_OPERAND_BEFORE_PARENTHESIS_CLOSE);
           }
           return {
             code: 0,
@@ -247,17 +264,32 @@
           };
         }
         _pos++;
-      } else {
-        // operand
+      } else if (FUNCTIONS.indexOf(token) >= 0) {
         if (!pendding.op && !pendding.start) {
-          // expect start or operator before an operand
+          return _extends({
+            token: token,
+            position: t.position
+          }, PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND);
+        }
+        var nextT = tokens[_pos + 1];
+        if (!nextT || nextT.token != '(') {
+          return _extends({
+            token: token,
+            position: t.position
+          }, PARSER_ERRS.EXPECT_PARNTHESIS_AFTER_FUNCTION);
+        }
+        pendding.func = token;
+        _pos++;
+      } else {
+        // variables and literals
+        if (!pendding.op && !pendding.start) {
           return _extends({
             token: token,
             position: t.position
           }, PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND);
         }
         var num = +token;
-        var _item = void 0;
+        var _item2 = void 0;
         if (isNaN(num)) {
           var newToken = token;
           if (opt.varValidator) {
@@ -272,23 +304,23 @@
               newToken = _res;
             }
           }
-          _item = {
+          _item2 = {
             type: 'var',
             name: newToken
           };
           if (pendding.negtive) {
-            _item.negtive = true;
+            _item2.negtive = true;
           }
         } else {
-          _item = {
+          _item2 = {
             type: 'const',
             name: pendding.negtive ? -num : num
           };
         }
         if (pendding.op) {
-          _item.op = pendding.op;
+          _item2.op = pendding.op;
         }
-        data.push(_item);
+        data.push(_item2);
         pendding = {};
         _pos++;
       }
@@ -375,6 +407,8 @@
           }
         } else if (item.type == 'op') {
           parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
+        } else if (item.type == 'func') {
+          parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + item.name);
         } else if (item.type == 'const') {
           parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + item.name + ' ');
         } else {
@@ -546,6 +580,8 @@
         }
       } else if (item.type == 'op') {
         parts.push(item.name + ' ' + (item.negtive ? '-' : ''));
+      } else if (item.type == 'func') {
+        parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + 'Math.' + item.name);
       } else if (item.type == 'const') {
         parts.push((item.op ? item.op + ' ' : '') + (item.negtive ? '-' : '') + item.name + ' ');
       } else {

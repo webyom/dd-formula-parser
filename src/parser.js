@@ -1,13 +1,14 @@
 import {tokenize} from './tokenizer';
 
 const OPERATORS = ['+', '-', '*', '/'];
+const FUNCTIONS = ['round', 'floor', 'ceil'];
 
 const PARSER_ERRS = {
   EXPECT_OPERAND_AFTER_OPERATOR: {
     code: 101,
     msg: 'Expect operand after operator'
   },
-  EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE: {
+  EXPECT_OPERAND_BEFORE_PARENTHESIS_CLOSE: {
     code: 102,
     msg: 'Expect operand before parenthesis close'
   },
@@ -27,8 +28,12 @@ const PARSER_ERRS = {
     code: 106,
     msg: 'Unclosed parenthesis'
   },
-  INVALID_VAR: {
+  EXPECT_PARNTHESIS_AFTER_FUNCTION: {
     code: 107,
+    msg: 'Expect parenthesis after function'
+  },
+  INVALID_VAR: {
+    code: 108,
     msg: 'Invalid variable'
   }
 };
@@ -56,7 +61,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
       if (res.code === 0) {
         let nestedData = res.data;
         if (nestedData.length > 0) {
-          if (nestedData.length === 1) {
+          if (nestedData.length === 1 && !pendding.func) {
             let item = nestedData[0];
             if (pendding.op) {
               item.op = pendding.op;
@@ -66,7 +71,19 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
             }
             data.push(item);
           } else {
-            if (pendding.op) {
+            if (pendding.func) {
+              let item = {
+                type: 'func',
+                name: pendding.func
+              };
+              if (pendding.op) {
+                item.op = pendding.op;
+              }
+              if (pendding.negtive) {
+                item.negtive = true;
+              }
+              data.push(item);
+            } else if (pendding.op) {
               if (pendding.negtive) {
                 data.push({
                   type: 'op',
@@ -101,7 +118,7 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
           return {
             token: token,
             position: t.position,
-            ...PARSER_ERRS.EXPECT_OPERAND_BEFORE_PARNTHESIS_CLOSE
+            ...PARSER_ERRS.EXPECT_OPERAND_BEFORE_PARENTHESIS_CLOSE
           };
         }
         return {
@@ -139,10 +156,27 @@ function _parse(tokens, opt, _pos = 0, _lv = 0) {
         };
       }
       _pos++;
-    } else {
-      // operand
+    } else if (FUNCTIONS.indexOf(token) >= 0) {
       if (!pendding.op && !pendding.start) {
-        // expect start or operator before an operand
+        return {
+          token: token,
+          position: t.position,
+          ...PARSER_ERRS.EXPECT_OPERATOR_BEFORE_OPERAND
+        };
+      }
+      const nextT = tokens[_pos + 1];
+      if (!nextT || nextT.token != '(') {
+        return {
+          token: token,
+          position: t.position,
+          ...PARSER_ERRS.EXPECT_PARNTHESIS_AFTER_FUNCTION
+        };
+      }
+      pendding.func = token;
+      _pos++;
+    } else {
+      // variables and literals
+      if (!pendding.op && !pendding.start) {
         return {
           token: token,
           position: t.position,
