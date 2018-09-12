@@ -31,7 +31,7 @@ Support decimal integer and float numbers, such as `18`, `1.5`
 
 Besides reserved tokens and number literals, all the tokens are treated as variables, such as `var1`
 
-Variables start with `$:` such as `$:ref1` can be used as placeholder for a reference to other formulas. We supply api for resolving these references.
+A variable may be a reference to another formula. We supply api for resolving these references.
 
 ## Api
 
@@ -148,7 +148,7 @@ Generate calculator function for a formula string or the data returned by `parse
 
 ## resolveRefs(refMap, refName)
 
-Recursively resolve the `$:ref1` like variables, replace them with the actual formula the are referring to.
+Recursively resolve the variables referring to other fomulas, replace them with the actual formula the are referring to.
 
 ### params
 

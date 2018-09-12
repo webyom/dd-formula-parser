@@ -489,16 +489,12 @@
   }
 
   var REFS_RESOLVER_ERRS = {
-    UNDEFINED_REF: {
-      code: 401,
-      msg: 'Undefined reference'
-    },
     CIRCULAR_REF: {
-      code: 402,
+      code: 401,
       msg: 'Circular reference'
     },
     PARSE_ERR: {
-      code: 403,
+      code: 402,
       msg: 'Parse error'
     }
   };
@@ -520,18 +516,14 @@
       next = false;
       var res = parse(exp, {
         varValidator: function varValidator(name) {
-          if (name.indexOf('$:') === 0) {
+          if (refMap[name]) {
             next = true;
             if (name == refName) {
               err = _extends({
                 ref: name
               }, REFS_RESOLVER_ERRS.CIRCULAR_REF);
-            } else if (refMap[name]) {
-              return '(' + refMap[name] + ')';
             } else {
-              err = _extends({
-                ref: name
-              }, REFS_RESOLVER_ERRS.UNDEFINED_REF);
+              return '(' + refMap[name] + ')';
             }
           }
         }
